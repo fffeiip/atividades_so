@@ -18,10 +18,10 @@ func ConsomeArroz(j int) {
 
 	fmt.Printf("\n\n============\tConsumidor %d\t============\n", j)
 	fmt.Println("Inicio routine de arroz")
+	runtime.Gosched()
 	if x < 1 {
 		fmt.Printf("Estoque de arroz: %d. Não foi possível consumir mais.", x)
 	} else {
-		runtime.Gosched()
 		x--
 		contador_arroz = x
 		fmt.Printf("Consumiu uma unidade de arroz.\nNovo estoque de arroz: %d", x)
@@ -35,12 +35,12 @@ func ConsomeArroz(j int) {
 func ConsomeFeijao(j int) {
 	mu.Lock()
 	y := contador_feijao
+	runtime.Gosched()
 	fmt.Printf("\n\n============\tConsumidor %d\t============\n", j)
 	fmt.Println("Inicio routine de feijão")
 	if y < 1 {
 		fmt.Printf("Estoque de feijão: %d. Não foi possível consumir mais.", y)
 	} else {
-		runtime.Gosched()
 		y--
 		contador_feijao = y
 		fmt.Printf("Consumiu uma unidade de feijão.\nNovo estoque de feijão: %d.", y)
