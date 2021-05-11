@@ -12,9 +12,12 @@ var contador_feijao = 10
 var mu sync.Mutex
 var wg sync.WaitGroup
 
-func ConsomeArroz() {
+func ConsomeArroz(j int) {
 	mu.Lock()
 	x := contador_arroz
+
+	fmt.Printf("\n\n============\tConsumidor %d\t============\n", j)
+	fmt.Println("Inicio routine de arroz")
 	if x < 1 {
 		fmt.Printf("Estoque de arroz: %d. Não foi possível consumir mais.", x)
 	} else {
@@ -29,9 +32,11 @@ func ConsomeArroz() {
 	time.Sleep(3 * time.Second)
 }
 
-func ConsomeFeijao() {
+func ConsomeFeijao(j int) {
 	mu.Lock()
 	y := contador_feijao
+	fmt.Printf("\n\n============\tConsumidor %d\t============\n", j)
+	fmt.Println("Inicio routine de feijão")
 	if y < 1 {
 		fmt.Printf("Estoque de feijão: %d. Não foi possível consumir mais.", y)
 	} else {
@@ -88,9 +93,7 @@ func Consumidor(j int) {
 
 	go func() {
 		for {
-			fmt.Printf("\n\n============\tConsumidor %d\t============\n", j)
-			fmt.Println("Inicio routine de arroz")
-			ConsomeArroz()
+			ConsomeArroz(j)
 			mu.Lock()
 			x := contador_arroz
 			if x < 1 {
@@ -104,9 +107,7 @@ func Consumidor(j int) {
 
 	go func() {
 		for {
-			fmt.Printf("\n\n============\tConsumidor %d\t============\n", j)
-			fmt.Println("Inicio routine de feijão")
-			ConsomeFeijao()
+			ConsomeFeijao(j)
 			mu.Lock()
 			y := contador_feijao
 			if y < 1 {
