@@ -17,33 +17,29 @@ type Process struct {
 func main() {
 
 	queue := list.New()
-	processes_ready := list.New()
 	var proc Process
-	// var nome string
-	// var tempo_cpu int
-	// var quantum int
-	// var total_processes int
+	var nome string
+	var tempo_cpu int
+	var quantum int
+	var total_processes int
 	var e *list.Element
 	var next *list.Element
 
 	fmt.Println("Exemplo de algorítimo Round-Robin")
 	fmt.Println("Favor informar o total de processos:")
-	total_processes := 8
-	// fmt.Scanln(&total_processes)
+	fmt.Scanln(&total_processes)
 
 	fmt.Println("Favor informar o tempo de quantum:")
-	// fmt.Scanln(&quantum)
-	const quantum = 20
+	fmt.Scanln(&quantum)
 
 	for i := 1; i <= total_processes; i++ {
 		fmt.Printf("=====\tProcesso %d\t=====\nInforme o nome do processo\n", i)
-		// fmt.Scanln(&nome)
+		fmt.Scanln(&nome)
 		fmt.Println("\nTempo de cpu:")
-		// fmt.Scanln(&tempo_cpu)
+		fmt.Scanln(&tempo_cpu)
 		proc.id = i
-		proc.nome = "pi"
-		proc.tempo_cpu = 20 * i
-		// tempo_cpu
+		proc.nome = nome
+		proc.tempo_cpu = tempo_cpu
 		queue.PushBack(proc)
 	}
 
@@ -52,21 +48,19 @@ func main() {
 	for {
 		proc = e.Value.(Process)
 		next = e.Next()
-		fmt.Printf("\n====\tProcesso %s %d\t====", proc.nome, proc.id)
-		time.Sleep(quantum * time.Millisecond)
+		fmt.Printf("\n====\tProcesso %s\t====", proc.nome)
+		time.Sleep(time.Duration(quantum) * time.Millisecond)
+		proc.tempo_cpu_decorrido = proc.tempo_cpu_decorrido + quantum
 		if proc.tempo_cpu > quantum && proc.tempo_cpu_decorrido < proc.tempo_cpu {
 			fmt.Printf("\nProcesso voltou pro final da fila")
-			proc.tempo_cpu_decorrido = proc.tempo_cpu_decorrido + quantum
-			fmt.Printf("\nTempo decorrido: %dms", proc.tempo_cpu_decorrido)
+			fmt.Printf("\nTempo de cpu nescessário %dms\nTempo de processamento decorrido: %dms", proc.tempo_cpu, proc.tempo_cpu_decorrido)
 			queue.PushBack(proc)
 		} else {
 			proc.finalizado_em = time.Now()
 			fmt.Printf("\nProcesso %d finalizado", proc.id)
 			fmt.Println("\nTempo Total: ", proc.finalizado_em.Sub(start))
-			proc.tempo_cpu_decorrido = proc.tempo_cpu_decorrido + proc.tempo_cpu
-			processes_ready.PushBack(proc)
 		}
-		fmt.Println("\n=======\tFim\t=======")
+		fmt.Println("\n============================")
 		queue.Remove(e)
 
 		if queue.Len() == 0 {
