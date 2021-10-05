@@ -11,19 +11,22 @@ type Process struct {
 	nome                string
 	tempo_cpu           int
 	tempo_cpu_decorrido int
+	last_iteration      time.Time
+	wait_time           []time.Duration
 	finalizado_em       time.Time
 }
 
 func main() {
 
 	queue := list.New()
+	finished_processes := list.New()
 	var proc Process
+	var wait_time time.Duration
+	var sum int
 	var nome string
 	var tempo_cpu int
 	var quantum int
 	var total_processes int
-	var e *list.Element
-	var next *list.Element
 
 	fmt.Println("Exemplo de algorítimo Round-Robin")
 	fmt.Println("Favor informar o total de processos:")
@@ -44,32 +47,45 @@ func main() {
 	}
 
 	start := time.Now()
-	e = queue.Front()
-	for {
+
+	for e := queue.Front(); e != nil; e = e.Next() {
 		proc = e.Value.(Process)
-		next = e.Next()
 		fmt.Printf("\n====\tProcesso %s\t====", proc.nome)
+
+		if proc.last_iteration.IsZero() {
+			wait_time = time.Now().Sub(start)
+		} else {
+			wait_time = time.Now().Sub(proc.last_iteration)
+		}
+		proc.wait_time = append(proc.wait_time, wait_time)
 		time.Sleep(time.Duration(quantum) * time.Millisecond)
 		proc.tempo_cpu_decorrido = proc.tempo_cpu_decorrido + quantum
 		if proc.tempo_cpu > quantum && proc.tempo_cpu_decorrido < proc.tempo_cpu {
 			fmt.Printf("\nProcesso voltou pro final da fila")
 			fmt.Printf("\nTempo de cpu nescessário %dms\nTempo de processamento decorrido: %dms", proc.tempo_cpu, proc.tempo_cpu_decorrido)
+			proc.last_iteration = time.Now()
 			queue.PushBack(proc)
 		} else {
 			proc.finalizado_em = time.Now()
+			finished_processes.PushBack(proc)
 			fmt.Printf("\nProcesso %d finalizado", proc.id)
-			fmt.Println("\nTempo Total: ", proc.finalizado_em.Sub(start))
+			fmt.Printf("\nTempo de cpu necessário %dms", proc.tempo_cpu)
+			fmt.Println("\nTurnaround: ", proc.finalizado_em.Sub(start))
 		}
 		fmt.Println("\n============================")
-		queue.Remove(e)
+	}
 
-		if queue.Len() == 0 {
-			break
+	fmt.Println("\n************Relatorio Final************")
+
+	for e := finished_processes.Front(); e != nil; e = e.Next() {
+		proc = e.Value.(Process)
+		sum = 0
+		fmt.Printf("\n======		Processo %s		======", proc.nome)
+		fmt.Println("\nTempo de turnaround: ", proc.finalizado_em.Sub(start))
+		for i := 0; i < len(proc.wait_time); i++ {
+			sum += int(proc.wait_time[i])
 		}
-		if next == nil {
-			e = queue.Front()
-		} else {
-			e = next
-		}
+		fmt.Println("\nTempo médio de espera: ", time.Duration(sum/len(proc.wait_time)))
+		fmt.Println("\n===================================")
 	}
 }
